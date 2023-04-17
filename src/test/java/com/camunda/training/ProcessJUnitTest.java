@@ -18,7 +18,7 @@ class ProcessJUnitTest {
     // TODO: 17-04-2023 fails because the task is still usertask-> can be set as manualtask so it will skipp
 
     @Test
-    @Deployment(resources = "diagram_1.bpmn")
+    @Deployment(resources = "ex3-scripttask.bpmn")
     void testHappyPath() {
 
         // Create a HashMap to put in variables for the process instance
@@ -26,7 +26,7 @@ class ProcessJUnitTest {
         variables.put("approved", true);
 
         // Start process with Java API and variables
-        ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("twitter-exercise2b", variables);
+        ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("ex3-scriptTask", variables);
 
         // Make assertions on the process instance
         assertThat(processInstance).isEnded();
