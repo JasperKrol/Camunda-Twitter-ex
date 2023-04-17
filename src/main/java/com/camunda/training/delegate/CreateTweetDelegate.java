@@ -12,7 +12,7 @@ public class CreateTweetDelegate implements JavaDelegate {
 
         TwitterService twitter = new TwitterService();
 
-        String content = "I did it! Cheers!";
+        String content = (String) delegateExecution.getVariable("content");
 
         twitter.updateStatus(content);
     }

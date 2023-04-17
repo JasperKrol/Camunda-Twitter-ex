@@ -2,7 +2,7 @@ package com.camunda.training;
 
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.test.Deployment;
-import org.camunda.bpm.extension.junit5.test.ProcessEngineExtension;
+import org.camunda.bpm.extension.process_test_coverage.junit5.ProcessEngineCoverageExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -12,7 +12,7 @@ import java.util.Map;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.assertThat;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.runtimeService;
 
-@ExtendWith(ProcessEngineExtension.class)
+@ExtendWith(ProcessEngineCoverageExtension.class)
 class ProcessJUnitTest {
 
     // TODO: 17-04-2023 fails because the task is still usertask-> can be set as manualtask so it will skipp
@@ -24,6 +24,8 @@ class ProcessJUnitTest {
         // Create a HashMap to put in variables for the process instance
         Map<String, Object> variables = new HashMap<>();
         variables.put("approved", true);
+        variables.put("content", "Exercise 4 test - YOUR NAME HERE");
+
 
         // Start process with Java API and variables
         ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("ex3-scriptTask", variables);
