@@ -9,6 +9,7 @@ import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.extension.process_test_coverage.junit5.ProcessEngineCoverageExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.assertj.core.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.List;
