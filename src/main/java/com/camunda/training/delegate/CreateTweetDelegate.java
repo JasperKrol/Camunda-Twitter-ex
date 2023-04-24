@@ -12,7 +12,12 @@ public class CreateTweetDelegate implements JavaDelegate {
 
         TwitterService twitter = new TwitterService();
 
+
         String content = (String) delegateExecution.getVariable("content");
+
+        if (content.equals("Network error")) {
+            throw new RuntimeException("simulated network error");
+        }
 
         twitter.updateStatus(content);
     }

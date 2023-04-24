@@ -34,7 +34,7 @@
       <bpmn:outgoing>Flow_0504i5i</bpmn:outgoing>
       <bpmn:script>print('Tweet rejected');</bpmn:script>
     </bpmn:scriptTask>
-    <bpmn:serviceTask id="Activity_1ajw5z7" name="Send tweet" camunda:class="com.camunda.training.delegate.CreateTweetDelegate">
+    <bpmn:serviceTask id="Activity_1ajw5z7" name="Send tweet" camunda:asyncBefore="true" camunda:class="com.camunda.training.delegate.CreateTweetDelegate">
       <bpmn:incoming>Flow_18cvyyl</bpmn:incoming>
       <bpmn:outgoing>Flow_0h2i6qe</bpmn:outgoing>
     </bpmn:serviceTask>
