@@ -1,15 +1,13 @@
 package com.camunda.training;
 
 import org.camunda.bpm.engine.ProcessEngine;
-import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.runtime.Job;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.extension.process_test_coverage.junit5.ProcessEngineCoverageExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.assertj.core.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,25 +22,45 @@ class ProcessJUnitTest {
     ProcessEngine processEngine;
 
     @Test
-    @Deployment(resources = "ex3-scripttask.bpmn")
+    @Deployment(resources = "ex9-externalservice.bpmn")
     void testHappyPath() {
 
         // Create a HashMap to put in variables for the process instance
         Map<String, Object> variables = new HashMap<>();
-        variables.put("approved", true);
         variables.put("content", "Exercise 4 test - YOUR NAME HERE");
-
 
         // Start process with Java API and variables
 
-        ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("ex3-scriptTask", variables);
+        ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("ex9-form", variables);
+        assertThat(processInstance).isWaitingAt("review-tweet");
+
+        List<Task> taskList = taskService()
+                .createTaskQuery()
+                .taskCandidateGroup("management")
+                .processInstanceId(processInstance.getId())
+                .list();
+
+        Task task = taskList.get(0);
+//        assertThat(taskList).isNotNull();
+//        assertThat(taskList).hasSize(1);
 
         // Make assertions on the process instance
-        assertThat(processInstance).isEnded();
+        Map<String, Object> approvedMap = new HashMap<>();
+        approvedMap.put("approved", true);
+        taskService().complete(task.getId(), approvedMap);
+
+        assertThat(processInstance).isWaitingAt("Send_tweet");
+        List<Job> jobList = jobQuery()
+                .processInstanceId(processInstance.getId())
+                .list();
+//        assertThat(jobList).hasSize(1);
+        Job job = jobList.get(0);
+        execute(job);
+
     }
 
     @Test
-    @Deployment(resources = "ex6-embeddedform.bpmn")
+    @Deployment(resources = "ex9-externalservice.bpmn")
     void testTweetRejected() {
 
         // Create a HashMap to put in variables for the process instance
@@ -54,10 +72,17 @@ class ProcessJUnitTest {
         // Start process with Java API and variables
 
         ProcessInstance processInstance = runtimeService()
-                .createProcessInstanceByKey("ex6-form")
+                .createProcessInstanceByKey("ex9-form")
                 .setVariables(variables)
                 .startAfterActivity(findId("Review Tweet"))
                 .execute();
+
+        assertThat(processInstance)
+                .isWaitingAt(findId("Notify user of rejection"))
+                .externalTask()
+                .hasTopicName("notification");
+        complete(externalTask());
+
         // Make assertions on the process instance
         assertThat(processInstance).isEnded().hasPassed(findId("Tweet declined"));
     }
