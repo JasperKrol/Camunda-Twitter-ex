@@ -41,6 +41,27 @@ class ProcessJUnitTest {
         assertThat(processInstance).isEnded();
     }
 
+    @Test
+    @Deployment(resources = "ex6-embeddedform.bpmn")
+    void testTweetRejected() {
+
+        // Create a HashMap to put in variables for the process instance
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("approved", false);
+        variables.put("content", "Exercise 8 test - YOUR NAME HERE");
+
+
+        // Start process with Java API and variables
+
+        ProcessInstance processInstance = runtimeService()
+                .createProcessInstanceByKey("ex6-form")
+                .setVariables(variables)
+                .startAfterActivity(findId("Review Tweet"))
+                .execute();
+        // Make assertions on the process instance
+        assertThat(processInstance).isEnded().hasPassed(findId("Tweet declined"));
+    }
+
 //    @Test
 //    @Deployment(resources = "ex5-UserTask.bpmn")
 //    void happyPathEx5() {
