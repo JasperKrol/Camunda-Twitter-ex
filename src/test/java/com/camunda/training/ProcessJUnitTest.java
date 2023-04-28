@@ -87,50 +87,50 @@ class ProcessJUnitTest {
         assertThat(processInstance).isEnded().hasPassed(findId("Tweet declined"));
     }
 
-//    @Test
-//    @Deployment(resources = "ex5-UserTask.bpmn")
-//    void happyPathEx5() {
-//
-//        // Create a HashMap to put in variables for the process instance
-//        RuntimeService runtimeService = extension.getRuntimeService();
-//
-//        // Start process with Java API and variables
-//        ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("ex5-UserTask.bpmn", variables);
-//
-//
-//        List<Task> taskList = taskService()
-//                .createTaskQuery()
-//                .taskCandidateGroup("management")
-//                .processInstanceId(processInstance.getId())
-//                .list();
-//        // Make assertions on the process instance
-//
-//
-//        assertThat(taskList).isNotNull();
-//        assertThat(taskList).hasSize(1);
-//
-//        Task task = taskList.get(0);
-//
-//
-//        Map<String, Object> approvedMap = new HashMap<String, Object>();
-//        approvedMap.put("approved", true);
-//        taskService().complete(task.getId(), approvedMap);
-//
-//        assertThat(processInstance).isEnded();
-//
-//    }
+    @Test
+    @Deployment(resources = "ex10-message.bpmn")
+    void super_User_TwitterPost() {
 
-//    @Test
-//    @Deployment
-//    public void extensionUsageExample() {
-//        RuntimeService runtimeService = processEngine.getRuntimeService();
-//        runtimeService.startProcessInstanceByKey("extensionUsage");
-//
-//        TaskService taskService = processEngine.getTaskService();
-//        Task task = taskService.createTaskQuery().singleResult();
-//        assertThat(task.getName()).isEqualTo("My Task");
-//
-//        taskService.complete(task.getId());
-//        assertThat(runtimeService.createProcessInstanceQuery().count()).isEqualTo(0);
-//    }
+        Map<String, Object> objectMap = new HashMap<>();
+        objectMap.put("content", "This is the 11th exercise to test");
+//        In your new method start a process by creating a message and correlating it with an event. Be sure to add a content variable. Given that superuserTweet is correlated with a start event, it will simply start the process.
+
+        ProcessInstance processInstance = runtimeService()
+                .createMessageCorrelation("superUserTweet")
+                .setVariable("content", "My Exercise 11 Tweet (ADD YOUR NAME HERE)- " + System.currentTimeMillis())
+                .correlateWithResult()
+                .getProcessInstance();
+
+        assertThat(processInstance).isStarted();
+//        runtimeService()
+//                .createMessageCorrelation("tweetWithdrawn")
+//                .correlateWithResult();
+
+        // get the job
+        List<Job> jobList = jobQuery()
+                .processInstanceId(processInstance.getId())
+                .list();
+
+        // execute the job
+        Job job = jobList.get(0);
+        execute(job);
+
+        assertThat(processInstance).isEnded();
+
+    }
+
+    @Test
+    @Deployment(resources = "ex10-message.bpmn")
+    public void tests_if_tweet_hasBeen_withdrawn() {
+            Map<String, Object> varMap = new HashMap<>();
+            varMap.put("content", "Test tweetWithdrawn message");
+            ProcessInstance processInstance = runtimeService()
+                    .startProcessInstanceByKey("ex11", varMap);
+            assertThat(processInstance).isStarted().isWaitingAt(findId("Review Tweet"));
+            runtimeService()
+                    .createMessageCorrelation("tweetWithdrawn")
+                    .processInstanceVariableEquals("content", "Test tweetWithdrawn message")
+                    .correlateWithResult();
+            assertThat(processInstance).isEnded();
+    }
 }
